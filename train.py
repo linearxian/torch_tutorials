@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch._C import device
+from torch._C import LongStorageBase, ParameterDict, device
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
@@ -15,6 +15,8 @@ from torchvision.transforms import ToTensor
 
 
 BATCH_SIZE = 128
+EPOCHS = 10
+LEARNING_RATE = 0.01
 
 
 
@@ -55,11 +57,28 @@ def download_mnist_datasets():
 
 
 def train_one_epoch(model, data_loader, loss_fn, optimiser, device):
-    pass
+    for inputs, targets in data_loader:
+        inputs, targets = inputs.to(device), targets.to(device)
 
 
-def train():
-    pass
+        # calculate loss
+        predictions = model(inputs)
+        loss = loss_fn(predictions, targets)
+
+        # backpropagate loss and update weights 
+        optimiser.zero_grad()
+        loss.backward()
+        optimiser.step()
+
+    print(f"Loss: {loss.item()}") 
+
+
+def train(model, data_loader, loss_fn, optimiser, device, epochs):
+    for i in range(epochs):
+        print(f"Epoch {i+1}")
+        train_one_epoch(model, data_loader, loss_fn, optimiser, device)
+        print("------------------------")
+    print("Training is done.")
 
 
 if __name__ == "__main__":
@@ -77,3 +96,14 @@ if __name__ == "__main__":
         device = "cpu"
     print(f"Using {device} device")
     feed_forward_net = FeedForwardNet().to(device)
+
+    # instantiate loss function + optimiser
+    loss_fn = nn.CrossEntropyLoss()
+    optimiser = torch.optim.Adam(feed_forward_net.parameters(),
+                                lr=LEARNING_RATE)
+
+    # train model
+    train(feed_forward_net, train_data_loader, loss_fn, optimiser, device, EPOCHS)
+
+    torch.save(feed_forward_net.state_dict(), "feedforwardnet.pth")
+    print("Model trained and stored at feedforwardnet.pth")
