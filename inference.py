@@ -1,22 +1,23 @@
 import torch
-from train import FeedForwardNet, download_mnist_datasets
-from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
+import torchaudio
+
+from cnn import CNNNetwork
+from urbansounddataset import UrbanSoundDataset
+from train import AUDIO_DIR, ANNOTATIONS_FILE, SAMPLE_RATE, NUM_SAMPLES
 
 
 class_mapping = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9"
+    "air_conditioner",
+    "car_horn",
+    "children_playing",
+    "dog_bark",
+    "drilling",
+    "engine_idling",
+    "gun_shot",
+    "jackhammer",
+    "siren",
+    "street_music"
 ]
-
 
 
 def predict(model, input, target, class_mapping):
@@ -32,25 +33,31 @@ def predict(model, input, target, class_mapping):
 
 if __name__ == "__main__":
     # load back the model
-    feed_forward_net = FeedForwardNet()
-    state_dict = torch.load("feedforwardnet.pth")
-    feed_forward_net.load_state_dict(state_dict)
+    cnn = CNNNetwork()
+    state_dict = torch.load("cnnnet.pth")
+    cnn.load_state_dict(state_dict)
 
-    # load MNIST validation dataset
-    _, validation_data = download_mnist_datasets()
+    # load urban sound dataset dataset
+    mel_spectrogram = torchaudio.transforms.MelSpectrogram(
+        sample_rate=SAMPLE_RATE,
+        n_fft=1024,
+        hop_length=512,
+        n_mels=64
+    )
 
-    # get a sample from the validation dataset for inference
-    # input, target = validation_data[0][0], validation_data[0][1]
-    validation_data_loader = DataLoader(validation_data, batch_size=10)
+    usd = UrbanSoundDataset(ANNOTATIONS_FILE,
+                            AUDIO_DIR,
+                            mel_spectrogram,
+                            SAMPLE_RATE,
+                            NUM_SAMPLES,
+                            "cpu")
 
-    i = 0
-    while i<10:
-        input, target = next(iter(validation_data_loader))
-        # make an inference
-        predicted, expected = predict(feed_forward_net, input[i], target[i], class_mapping)
-        print(f"Predicted: '{predicted}', Expected: '{expected}'")
-        plt.figure()
-        plt.imshow(input[i].reshape(28,28), cmap="gray")
-        plt.title(f"Predicted: '{predicted}', Expected: '{expected}'")
-        plt.show()
-        i = i + 1
+
+    # get a sample from the urban sound dataset for inference
+    input, target = usd[0][0], usd[0][1] # [batch size, num_channels, fr, time]
+    input.unsqueeze_(0)
+
+    # make an inference
+    predicted, expected = predict(cnn, input, target,
+                                  class_mapping)
+    print(f"Predicted: '{predicted}', expected: '{expected}'")
