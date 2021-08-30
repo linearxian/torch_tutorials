@@ -11,8 +11,8 @@ BATCH_SIZE = 128
 EPOCHS = 10
 LEARNING_RATE = 0.001
 
-ANNOTATIONS_FILE = "/home/valerio/datasets/UrbanSound8K/metadata/UrbanSound8K.csv"
-AUDIO_DIR = "/home/valerio/datasets/UrbanSound8K/audio"
+ANNOTATIONS_FILE = "/media/xian/HDD1/UrbanSound8K/metadata/UrbanSound8K.csv"
+AUDIO_DIR = "/media/xian/HDD1/UrbanSound8K/audio"
 SAMPLE_RATE = 22050
 NUM_SAMPLES = 22050
 
