@@ -8,11 +8,11 @@ from cnn import CNNNetwork
 
 
 BATCH_SIZE = 128
-EPOCHS = 10
+EPOCHS = 100
 LEARNING_RATE = 0.001
 
-ANNOTATIONS_FILE = "/media/xian/HDD1/UrbanSound8K/metadata/UrbanSound8K.csv"
-AUDIO_DIR = "/media/xian/HDD1/UrbanSound8K/audio"
+ANNOTATIONS_FILE = "/home/xian/Documents/datasets/UrbanSound8K/metadata/UrbanSound8K.csv"
+AUDIO_DIR = "/home/xian/Documents/datasets/UrbanSound8K/audio"
 SAMPLE_RATE = 22050
 NUM_SAMPLES = 22050
 
@@ -83,5 +83,5 @@ if __name__ == "__main__":
     train(cnn, train_dataloader, loss_fn, optimiser, device, EPOCHS)
 
     # save model
-    torch.save(cnn.state_dict(), "feedforwardnet.pth")
-    print("Trained feed forward net saved at feedforwardnet.pth")
+    torch.save(cnn.state_dict(), "usd.pth")
+    print("Trained feed forward net saved at usd.pth")
